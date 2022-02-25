@@ -1,8 +1,10 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.IO.Ports;
 using System.Diagnostics;
 namespace Arduino_System_Information
+
+
 {
     public class Program
     {
@@ -16,10 +18,18 @@ namespace Arduino_System_Information
 
             while (true)
             {
-                ulong used = GetUsedPhys() / (1024 * 1024);
-                ulong total = GetTotalPhys() / (1024 * 1024);
-                int islmc = (int)cpuCounter.NextValue();
-                byte[] MyMessage = System.Text.Encoding.UTF8.GetBytes($"{used}-{(int)(used * 1.0 / total * 100)}-{islmc}");
+                MEMORY_INFO ram = new MEMORY_INFO();
+                ram.dwLength = (uint)Marshal.SizeOf(ram);
+                GlobalMemoryStatusEx(ref ram);
+
+                ulong totalMem = ram.ullTotalPhys / (1024 * 1024),
+                memUsage = totalMem - ram.ullAvailPhys / (1024 * 1024);
+
+                int memRatio = (int)(memUsage * 1.0 / totalMem * 100),
+                 cpuUsage = (int)cpuCounter.NextValue();
+
+                Console.WriteLine($"{memUsage}-{memRatio}-{cpuUsage}");
+                byte[] MyMessage = System.Text.Encoding.UTF8.GetBytes($"{memUsage}-{memRatio}-{cpuUsage}");
                 port.Write(MyMessage, 0, MyMessage.Length);
 
                 //Per 1000 ms
@@ -27,10 +37,10 @@ namespace Arduino_System_Information
             }
         }
 
-        #region Obtain memory information API
+
         [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GlobalMemoryStatusEx(ref MEMORY_INFO mi);
+        public static extern bool GlobalMemoryStatusEx(ref MEMORY_INFO ram);
 
         //Define the information structure of memory
         [StructLayout(LayoutKind.Sequential)]
@@ -46,58 +56,6 @@ namespace Arduino_System_Information
             public ulong ullAvailVirtual; //Available virtual memory size
             public ulong ullAvailExtendedVirtual; //Keep this value always zero
         }
-        #endregion
 
-     
-
-        #region Get the current memory usage
-        /// <summary>
-        /// Get the current memory usage
-        /// </summary>
-        /// <returns></returns>
-        public static MEMORY_INFO GetMemoryStatus()
-        {
-            MEMORY_INFO mi = new MEMORY_INFO();
-            mi.dwLength = (uint)System.Runtime.InteropServices.Marshal.SizeOf(mi);
-            GlobalMemoryStatusEx(ref mi);
-            return mi;
-        }
-        #endregion
-
-        #region Get the current available physical memory size
-        /// <summary>
-        /// Get the current available physical memory size
-        /// </summary>
-        /// <returns>Current available physical memory( B)</returns>
-        public static ulong GetAvailPhys()
-        {
-            MEMORY_INFO mi = GetMemoryStatus();
-            return mi.ullAvailPhys;
-        }
-        #endregion
-
-        #region Get the current memory size used
-        /// <summary>
-        /// Get the current memory size used
-        /// </summary>
-        /// <returns>Memory size used( B)</returns>
-        public static ulong GetUsedPhys()
-        {
-            MEMORY_INFO mi = GetMemoryStatus();
-            return (mi.ullTotalPhys - mi.ullAvailPhys);
-        }
-        #endregion
-
-        #region Get the current total physical memory size
-        /// <summary>
-        /// Get the current total physical memory size
-        /// </summary>
-        /// <returns&amp;gt;Total physical memory size( B)&amp;lt;/returns&amp;gt;
-        public static ulong GetTotalPhys()
-        {
-            MEMORY_INFO mi = GetMemoryStatus();
-            return mi.ullTotalPhys;
-        }
-        #endregion
     }
 }
