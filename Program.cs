@@ -52,7 +52,7 @@ namespace Arduino_System_Information
                 int memRatio = (int)(memUsage * 1.0 / totalMem * 100),
                  cpuUsage = (int)cpuCounter.NextValue();
 
-                byte[] MyMessage = System.Text.Encoding.UTF8.GetBytes($"{memUsage}-{memRatio}-{cpuUsage}");
+                byte[] MyMessage = System.Text.Encoding.UTF8.GetBytes($"{memUsage}-{memRatio}-{cpuUsage}       ");
                 port.Write(MyMessage, 0, MyMessage.Length);
 
                 //Per 1000 ms
