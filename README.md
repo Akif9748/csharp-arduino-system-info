@@ -11,12 +11,17 @@ You can see RAM usage, and CPU usage.
 - A 10K potentiometer 
 - A 220 Ohm resistor 
 
-
-## How to use?
+## How to run?
 1. Download this repo.
 2. If you have I2C upload code named `systeminfoI2C.ino`, else `systeminfo.ino` to your Board.
 3. Connect pins. Look under for this. And connect your board to your computer.
-4. Write your COM port to code:
+4. Run lastest release. It will ask you for port.
+1. 
+## How to compile?
+1. Download this repo.
+2. If you have I2C upload code named `systeminfoI2C.ino`, else `systeminfo.ino` to your Board.
+3. Connect pins. Look under for this. And connect your board to your computer.
+4. The program will list all ports on console. But you can write your COM port to code:
 ```cs
 SerialPort port = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.One);
 ```

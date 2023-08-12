@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{59CD711E-A1A8-478A-AEBB-202D4B98362C}</ProjectGuid>
+    <ProjectGuid>{5BBB4AAD-A89E-4E61-B6E5-365B638D338B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Arduino_System_Information</RootNamespace>
     <AssemblyName>Arduino System Information</AssemblyName>
@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />

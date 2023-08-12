@@ -6,11 +6,10 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 // Change address if this is not applicable. Example: 0x27,0x3F
 
 // String max size: 65536-100-100
-const int size = 14;
-
+const int size = 14, strings_size = 3;
 // For datas:
 String ram, ramUsage, cpu;
-char *strings[size], *ptr = NULL;
+char *strings[strings_size], *ptr = NULL;
 
 void setup()
 {
@@ -33,11 +32,9 @@ void loop()
         data.toCharArray(values, size); // String => Char
         ptr = strtok(values, "-");      // Split "-"
 
-        int index = 0;
-        while (ptr != NULL)
+        for (int i = 0; i < strings_size; i++)
         {
-            strings[index] = ptr; // Save to Strings
-            index++;
+            strings[i] = ptr;    // Save to Strings        
             ptr = strtok(NULL, "-"); // Split "-"
         }
 
@@ -53,6 +50,6 @@ void loop()
         lcd.setCursor(0, 0);
         lcd.print("RAM: " + ram + " %" + ramUsage);
         lcd.setCursor(0, 1);
-        lcd.print("CPU: %" + cpu);
+        lcd.print("CPU: %" + cpu.substring(0, ((cpu.lastIndexOf('0') > 1) ? 3 : 2)));
     }
 }

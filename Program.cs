@@ -1,7 +1,10 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.IO.Ports;
 using System.Diagnostics;
+using System.Linq;
+using System.Management;
+
 namespace Arduino_System_Information
 
 
@@ -10,10 +13,31 @@ namespace Arduino_System_Information
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Ports: ");
+
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Caption like '%(COM%'"))
+            {
+                var portnames = SerialPort.GetPortNames();
+                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
+
+                var portList = portnames.Select(n => ports.FirstOrDefault(s => s.Contains(n))).ToList();
+
+                foreach (string s in portList)
+                {
+                    Console.WriteLine(s);
+                }
+            }
+            Console.Write("Select Port:  ");
+            var arduino = Console.ReadLine();
+
+            if (arduino == null)
+                arduino = "COM6";
+
             //Your com port, and baud rate:
-            SerialPort port = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.One);
+
+            SerialPort port = new SerialPort(arduino.ToUpper(), 9600, Parity.None, 8, StopBits.One);
             port.Open();
-            Console.WriteLine("Serial is ready!");
+            Console.WriteLine("Serial is ready on: " + arduino);
             PerformanceCounter cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
 
             while (true)
