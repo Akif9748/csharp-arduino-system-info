@@ -14,24 +14,32 @@ namespace Arduino_System_Information
         static void Main(string[] args)
         {
             Console.WriteLine("Ports: ");
-
-            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Caption like '%(COM%'"))
+            string arduino;
+            if (args.Length > 0)
             {
-                var portnames = SerialPort.GetPortNames();
-                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
-
-                var portList = portnames.Select(n => ports.FirstOrDefault(s => s.Contains(n))).ToList();
-
-                foreach (string s in portList)
-                {
-                    Console.WriteLine(s);
-                }
+                arduino = args[0];
             }
-            Console.Write("Select Port:  ");
-            var arduino = Console.ReadLine();
+            else
+            {
+                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Caption like '%(COM%'"))
+                {
+                    var portnames = SerialPort.GetPortNames();
+                    var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
 
-            if (arduino == null)
-                arduino = "COM6";
+                    var portList = portnames.Select(n => ports.FirstOrDefault(s => s.Contains(n))).ToList();
+
+                    foreach (string s in portList)
+                    {
+                        Console.WriteLine(s);
+                    }
+                }
+                Console.Write("Select Port:  ");
+                arduino = Console.ReadLine();
+
+                if (arduino == null)
+                    arduino = "COM6";
+            }
+
 
             //Your com port, and baud rate:
 
@@ -51,8 +59,9 @@ namespace Arduino_System_Information
 
                 int memRatio = (int)(memUsage * 1.0 / totalMem * 100),
                  cpuUsage = (int)cpuCounter.NextValue();
+                string cpuRatio = cpuUsage < 10 ? $"0{cpuUsage}" : cpuUsage.ToString();
 
-                byte[] MyMessage = System.Text.Encoding.UTF8.GetBytes($"{memUsage}-{memRatio}-{cpuUsage}       ");
+                byte[] MyMessage = System.Text.Encoding.UTF8.GetBytes($"{memUsage}-{memRatio}-{cpuRatio}       ");
                 port.Write(MyMessage, 0, MyMessage.Length);
 
                 //Per 1000 ms
